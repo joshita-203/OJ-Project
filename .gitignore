@@ -1,0 +1,13 @@
+# Node modules (dependencies)
+node_modules/
+
+# Environment variable file (contains secrets)
+.env
+
+# Logs
+logs/
+*.log
+
+# Optional: OS-specific hidden files
+.DS_Store
+Thumbs.db
