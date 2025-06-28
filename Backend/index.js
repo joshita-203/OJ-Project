@@ -13,6 +13,8 @@ DBConnection();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+
 app.get("/",(req, res) => {
     res.send("Hello WORLD !");
 });
@@ -106,6 +108,10 @@ app.post("/logout", (req, res) => {
         message: "Logout successful. Please delete token from client (like localStorage)."
     });
 });
+
+
+const problemRoutes = require("./routes/problemRoutes");
+app.use(problemRoutes);
 
 
 app.listen(process.env.PORT,() => {
