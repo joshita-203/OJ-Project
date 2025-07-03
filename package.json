@@ -7,7 +7,6 @@
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -16,5 +15,20 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.0",
     "nodemon": "^3.1.10"
-  }
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joshita-203/OJ-Project.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/joshita-203/OJ-Project/issues"
+  },
+  "homepage": "https://github.com/joshita-203/OJ-Project#readme",
+  "description": ""
 }
