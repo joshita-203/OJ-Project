@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
     res.send("Hello WORLD !");
 });
 
-// ✅ REGISTER ROUTE (UPDATED)
+
 app.post("/register", async (req, res) => {
   try {
     const { firstname, lastname, email, password } = req.body;
@@ -60,7 +60,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// ✅ LOGIN ROUTE (unchanged, works fine)
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
