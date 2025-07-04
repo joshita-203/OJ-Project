@@ -1,3 +1,4 @@
+// src/pages/Dashboard.tsx
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +46,7 @@ export const Dashboard = () => {
 
   const fetchProblems = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/problems`);
+      const res = await fetch(`${BASE_URL}/api/problems`);
       const data = await res.json();
       setProblems(data);
     } catch (err) {
@@ -54,7 +55,7 @@ export const Dashboard = () => {
   };
 
   const deleteProblem = async (id: string) => {
-    await fetch(`${BASE_URL}/problems/${id}`, {
+    await fetch(`${BASE_URL}/api/problems/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -102,13 +103,11 @@ export const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 relative p-6 text-white">
-      {/* Background Animation */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute w-80 h-80 bg-fuchsia-600/20 rounded-full blur-3xl top-1/3 left-1/4 animate-pulse" />
         <div className="absolute w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl bottom-1/4 right-1/3 animate-pulse delay-1000" />
       </div>
 
-      {/* Header */}
       <div className="relative z-10 mb-10 text-center">
         <h1 className="text-4xl font-bold mb-2 text-fuchsia-300">
           <Sparkles className="inline-block mr-2 text-cyan-300" />
@@ -119,7 +118,6 @@ export const Dashboard = () => {
         </p>
       </div>
 
-      {/* Stats Cards */}
       <div className="relative z-10 grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
         <Card className="bg-gray-900 border border-gray-700">
           <CardContent className="p-4 text-center">
@@ -162,17 +160,17 @@ export const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Create Button */}
-      <div className="relative z-10 mb-6 flex justify-end">
-        <Button
-          onClick={() => navigate("/Create")}
-          className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold shadow-lg hover:scale-105 transition-all"
-        >
-          + Create New Problem
-        </Button>
-      </div>
+      {user && (
+        <div className="relative z-10 mb-6 flex justify-end">
+          <Button
+            onClick={() => navigate("/create")}
+            className="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white font-semibold shadow-lg hover:scale-105 transition-all"
+          >
+            + Create New Problem
+          </Button>
+        </div>
+      )}
 
-      {/* Tabs */}
       <Tabs value={tab} onValueChange={setTab} className="relative z-10 mb-8">
         <TabsList className="grid grid-cols-4 bg-gray-800 border border-gray-700 text-white">
           <TabsTrigger value="all">All</TabsTrigger>

@@ -14,6 +14,8 @@ import { LoginPage } from "@/pages/LoginPage";
 import { SignupPage } from "@/pages/SignupPage";
 import { Dashboard } from "@/pages/dashboard";
 import { CreateProblemPage } from "@/pages/CreateProblemPage";
+import { UpdateProblemPage } from "@/pages/UpdateProblemPage";
+import { SolveProblemPage } from "@/pages/SolveProblemPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,24 @@ const App = () => (
                   <ProtectedRoute>
                     <Navbar />
                     <CreateProblemPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/update/:id"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <UpdateProblemPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/solve/:id"
+                element={
+                  <ProtectedRoute>
+                    <Navbar />
+                    <SolveProblemPage />
                   </ProtectedRoute>
                 }
               />

@@ -1,70 +1,71 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const dotenv = require("dotenv");
 const { DBConnection } = require("./database/db");
 const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-app.use(cors());
+// ✅ New imports
+const problemRoutes = require("./routes/problemRoutes");
 
+dotenv.config();
+app.use(cors());
 DBConnection();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/",(req, res) => {
+// ✅ Test route
+app.get("/", (req, res) => {
     res.send("Hello WORLD !");
 });
 
-app.post("/register", async (req,res) => {
-   try {
-     //get all the data from the frontend
-    const{firstname,lastname,email,password}= req.body;
-    //check that all the data should exists
-    if(!(firstname&&lastname&&email&&password)){
-        return res.status(400).send("Please enter all the information");
-    }
+// ✅ Register
+app.post("/register", async (req, res) => {
+    try {
+        const { firstname, lastname, email, password } = req.body;
 
-    //add more validations
+        if (!(firstname && lastname && email && password)) {
+            return res.status(400).send("Please enter all the information");
+        }
 
-    //check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).send("User already exists with the same email");
+        }
 
-    const existingUser= await User.findOne({email});
-    if(existingUser)
-    {
-        return res.status(400).send("User already exists with the same email");
-    }
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-    //hashing/encrypt the password
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    //save the user in the db
-
-    const user = await User.create(
-        {
+        const user = await User.create({
             firstname,
             lastname,
             email,
             password: hashedPassword,
         });
 
+        const token = jwt.sign(
+            { id: user._id, email },
+            process.env.SECRET_KEY,
+            { expiresIn: '1h' }
+        );
 
-    //generate a token for user and send it 
+        user.token = token;
+        user.password = undefined;
 
-    const token=jwt.sign({id: user._id,email},process.env.SECRET_KEY,{
-        expiresIn: '1h',
-    });
-    user.token= token;
-    user.password = undefined;
-    res.status(200).json({message: 'You have successfully registered!',user});
+        res.status(200).json({
+            message: 'You have successfully registered!',
+            user
+        });
 
-   } catch (error) {
-    console.log(error);
-   }
+    } catch (error) {
+        console.log("Register error:", error);
+        res.status(500).send("Server error during registration");
+    }
 });
 
+// ✅ Login
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -89,25 +90,28 @@ app.post("/login", async (req, res) => {
         user.password = undefined;
 
         res.status(200).json({
-    message: 'Login successful',
-    token,
-    user
-});
-
+            message: 'Login successful',
+            token,
+            user
+        });
 
     } catch (error) {
         console.log("Login error:", error);
-        res.status(500).send("Server error");
+        res.status(500).send("Server error during login");
     }
 });
 
+// ✅ Logout
 app.post("/logout", (req, res) => {
     res.status(200).json({
         message: "Logout successful. Please delete token from client (like localStorage)."
     });
 });
 
+// ✅ Mount the problem routes here
+app.use("/api/problems", problemRoutes);
 
-app.listen(process.env.PORT,() => {
+// ✅ Start the server
+app.listen(process.env.PORT, () => {
     console.log(`Server is listening on port ${process.env.PORT}!`);
 });
