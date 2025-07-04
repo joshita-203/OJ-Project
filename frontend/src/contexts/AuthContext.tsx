@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 interface User {
@@ -79,9 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const data = await response.json();
-    setToken(data.user.token);
+    setToken(data.token); // ✅ Fixed this line
     setUser(data.user);
-    localStorage.setItem("token", data.user.token);
+    localStorage.setItem("token", data.token); // ✅ Fixed this line
     localStorage.setItem("user", JSON.stringify(data.user));
   };
 

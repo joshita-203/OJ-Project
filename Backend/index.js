@@ -7,7 +7,7 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// ✅ New imports
+// ✅ Import problem routes
 const problemRoutes = require("./routes/problemRoutes");
 
 dotenv.config();
@@ -51,11 +51,11 @@ app.post("/register", async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        user.token = token;
-        user.password = undefined;
+        user.password = undefined; // Don't send hashed password
 
         res.status(200).json({
             message: 'You have successfully registered!',
+            token, // ✅ Send token separately
             user
         });
 
@@ -86,7 +86,6 @@ app.post("/login", async (req, res) => {
             { expiresIn: '1h' }
         );
 
-        user.token = token;
         user.password = undefined;
 
         res.status(200).json({
