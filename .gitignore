@@ -33,3 +33,7 @@ Thumbs.db
 
 # Others
 *.swp
+
+# Compiler-generated files (exclude C++ source & executables)
+Online_compiler/codes/
+Online_compiler/outputs/

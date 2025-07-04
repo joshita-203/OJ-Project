@@ -55,6 +55,11 @@ export const SolveProblemPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!problem?.testCases || problem.testCases.length === 0) {
+      toast({ title: "❌ No test cases found", variant: "destructive" });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const res = await fetch(`${COMPILER_URL}/submit`, {
@@ -62,19 +67,32 @@ export const SolveProblemPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code,
-          language: "cpp"
+          language: "cpp",
+          testCases: problem.testCases,
         }),
       });
+
       const data = await res.json();
-      if (data.allPassed) {
+
+      if (data.success && data.allPassed) {
         toast({ title: "✅ All test cases passed!" });
         setOutput("✅ All test cases passed!");
-      } else {
+      } else if (data.success && !data.allPassed) {
         toast({ title: "❌ Some test cases failed", variant: "destructive" });
-        setOutput("❌ Some test cases failed");
+        setOutput(
+          data.results
+            .map(
+              (r: any, i: number) =>
+                `#${i + 1} ${r.passed ? "✅" : "❌"}\nInput:\n${r.input}\nExpected:\n${r.expected}\nOutput:\n${r.actual}\n`
+            )
+            .join("\n")
+        );
+      } else {
+        toast({ title: "❌ Submit failed", variant: "destructive" });
+        setOutput(data.error || "Submit failed");
       }
     } catch {
-      toast({ title: "Submit failed", variant: "destructive" });
+      toast({ title: "❌ Network error during submit", variant: "destructive" });
       setOutput("Submit failed");
     }
     setSubmitting(false);

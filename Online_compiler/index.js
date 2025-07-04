@@ -14,7 +14,7 @@ app.get("/", (req, res) => {
   res.send("⚙️ Online Compiler Running");
 });
 
-// Run code with optional input
+// ✅ Run code with optional input
 app.post("/run", async (req, res) => {
   const { language = 'cpp', code, input = "" } = req.body;
 
@@ -32,37 +32,47 @@ app.post("/run", async (req, res) => {
   }
 });
 
-// Submit code (secure — test cases are not sent to frontend)
+// ✅ Submit code with server-side test cases
 app.post("/submit", async (req, res) => {
-  const { language = 'cpp', code } = req.body;
+  const { language = 'cpp', code, testCases = [] } = req.body;
 
-  if (!code) {
-    return res.status(400).json({ success: false, error: "Code is required" });
+  if (!code || testCases.length === 0) {
+    return res.status(400).json({ success: false, error: "Code and test cases are required" });
   }
 
   try {
     const filePath = generateFile(language, code);
-
-    // ✅ Example test cases stored securely on server
-    const testCases = [
-      { input: "3 5", expected: "8" },
-      { input: "4 8", expected: "12" },
-    ];
-
     let allPassed = true;
+    const results = [];
 
     for (const test of testCases) {
       const actualOutput = await executeCpp(filePath, test.input);
-      const cleanedOutput = actualOutput.trim().replace(/\r/g, "");
-      const expected = test.expected.trim().replace(/\r/g, "");
 
-      if (cleanedOutput !== expected) {
-        allPassed = false;
-        break;
-      }
+      const cleanedOutput = actualOutput
+        .trim()
+        .replace(/\r/g, "")
+        .replace(/\n/g, "")
+        .replace(/\s+/g, " ");
+
+      const expected = test.expectedOutput
+        .trim()
+        .replace(/\r/g, "")
+        .replace(/\n/g, "")
+        .replace(/\s+/g, " ");
+
+      const passed = cleanedOutput === expected;
+
+      results.push({
+        input: test.input,
+        expected: test.expectedOutput,
+        actual: actualOutput.trim(),
+        passed,
+      });
+
+      if (!passed) allPassed = false;
     }
 
-    res.json({ success: true, allPassed });
+    res.json({ success: true, allPassed, results });
   } catch (error) {
     console.error("Submit error:", error);
     res.status(500).json({ success: false, error: error.stderr || error.message });
