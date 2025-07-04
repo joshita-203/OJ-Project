@@ -22,6 +22,7 @@ export const SolveProblemPage = () => {
   const { toast } = useToast();
   const [problem, setProblem] = useState<Problem | null>(null);
   const [code, setCode] = useState(`#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  return 0;\n}`);
+  const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -44,7 +45,7 @@ export const SolveProblemPage = () => {
       const res = await fetch(`${COMPILER_URL}/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, language: "cpp" }),
+        body: JSON.stringify({ code, language: "cpp", input: customInput }),
       });
       const data = await res.json();
       setOutput(data.output || data.error || "No output");
@@ -54,7 +55,6 @@ export const SolveProblemPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!problem?.testCases) return;
     setSubmitting(true);
     try {
       const res = await fetch(`${COMPILER_URL}/submit`, {
@@ -62,8 +62,7 @@ export const SolveProblemPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code,
-          language: "cpp",
-          testCases: problem.testCases,
+          language: "cpp"
         }),
       });
       const data = await res.json();
@@ -72,14 +71,7 @@ export const SolveProblemPage = () => {
         setOutput("✅ All test cases passed!");
       } else {
         toast({ title: "❌ Some test cases failed", variant: "destructive" });
-        setOutput(
-          data.results
-            .map(
-              (r: any, i: number) =>
-                `#${i + 1} ${r.passed ? "✅" : "❌"}\nInput:\n${r.input}\nExpected:\n${r.expected}\nOutput:\n${r.actual}\n`
-            )
-            .join("\n")
-        );
+        setOutput("❌ Some test cases failed");
       }
     } catch {
       toast({ title: "Submit failed", variant: "destructive" });
@@ -135,6 +127,14 @@ export const SolveProblemPage = () => {
             value={code}
             onChange={(e) => setCode(e.target.value)}
           />
+
+          <Textarea
+            placeholder="Custom Input"
+            className="h-24 font-mono bg-white text-gray-900 border border-gray-300 shadow"
+            value={customInput}
+            onChange={(e) => setCustomInput(e.target.value)}
+          />
+
           <div className="flex gap-4">
             <Button onClick={handleRun} className="bg-blue-600 text-white hover:bg-blue-700">Run</Button>
             <Button
