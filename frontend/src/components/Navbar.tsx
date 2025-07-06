@@ -31,7 +31,7 @@ export const Navbar = () => {
             </div>
             <div className="text-xl font-bold">
               <span className="text-white">Code</span>
-              <span className="text-cyan-400">Judge</span>
+              <span className="text-cyan-400">Verse</span>
             </div>
           </div>
 

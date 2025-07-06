@@ -124,7 +124,7 @@ export const LandingPage = () => {
               </div>
               <div className="text-3xl font-bold">
                 <span className="text-white">Code</span>
-                <span className="text-cyan-300">Judge</span>
+                <span className="text-cyan-300">Verse</span>
               </div>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
