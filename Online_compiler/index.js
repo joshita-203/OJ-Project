@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const generateFile = require("./generateFile");
-const executeCpp = require("./executeCpp");
+const executeCode = require("./executeCode");
 
 const app = express();
 const PORT = 8000;
@@ -14,17 +14,23 @@ app.get("/", (req, res) => {
   res.send("⚙️ Online Compiler Running");
 });
 
-// ✅ Run code with optional input
+// ✅ /run - Executes with custom input or fallback to 1st test case
 app.post("/run", async (req, res) => {
-  const { language = 'cpp', code, input = "" } = req.body;
+  const { language = "cpp", code, input = "", testCases = [] } = req.body;
 
   if (!code) {
     return res.status(400).json({ success: false, error: "Empty code body" });
   }
 
+  const finalInput = input.trim()
+    ? input
+    : testCases.length > 0
+    ? testCases[0].input
+    : "";
+
   try {
     const filePath = generateFile(language, code);
-    const output = await executeCpp(filePath, input);
+    const output = await executeCode(filePath, finalInput);
     res.json({ success: true, output });
   } catch (error) {
     console.error("Execution error:", error);
@@ -32,9 +38,9 @@ app.post("/run", async (req, res) => {
   }
 });
 
-// ✅ Submit code with server-side test cases
+// ✅ /submit - Test case based validation
 app.post("/submit", async (req, res) => {
-  const { language = 'cpp', code, testCases = [] } = req.body;
+  const { language = "cpp", code, testCases = [] } = req.body;
 
   if (!code || testCases.length === 0) {
     return res.status(400).json({ success: false, error: "Code and test cases are required" });
@@ -46,7 +52,7 @@ app.post("/submit", async (req, res) => {
     const results = [];
 
     for (const test of testCases) {
-      const actualOutput = await executeCpp(filePath, test.input);
+      const actualOutput = await executeCode(filePath, test.input);
 
       const cleanedOutput = actualOutput
         .trim()

@@ -21,6 +21,7 @@ export const SolveProblemPage = () => {
   const { id } = useParams();
   const { toast } = useToast();
   const [problem, setProblem] = useState<Problem | null>(null);
+  const [language, setLanguage] = useState("cpp");
   const [code, setCode] = useState(`#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  return 0;\n}`);
   const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
@@ -41,12 +42,23 @@ export const SolveProblemPage = () => {
 
   const handleRun = async () => {
     setOutput("Running...");
+
+    const inputToSend = customInput.trim()
+      ? customInput
+      : problem?.testCases?.[0]?.input || "";
+
     try {
       const res = await fetch(`${COMPILER_URL}/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, language: "cpp", input: customInput }),
+        body: JSON.stringify({
+          code,
+          language,
+          input: inputToSend,
+          testCases: problem?.testCases || [],
+        }),
       });
+
       const data = await res.json();
       setOutput(data.output || data.error || "No output");
     } catch {
@@ -67,7 +79,7 @@ export const SolveProblemPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code,
-          language: "cpp",
+          language,
           testCases: problem.testCases,
         }),
       });
@@ -91,6 +103,17 @@ export const SolveProblemPage = () => {
     setSubmitting(false);
   };
 
+  const handleLanguageChange = (lang: string) => {
+    setLanguage(lang);
+    if (lang === "cpp") {
+      setCode(`#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  return 0;\n}`);
+    } else if (lang === "java") {
+      setCode(`public class Main {\n  public static void main(String[] args) {\n    // your code here\n  }\n}`);
+    } else if (lang === "py") {
+      setCode(`print("Hello, Python!")`);
+    }
+  };
+
   if (!problem) return <p className="text-center text-gray-800 p-6">Loading...</p>;
 
   const sample = problem.testCases?.[0];
@@ -101,7 +124,6 @@ export const SolveProblemPage = () => {
       style={{ background: "linear-gradient(to bottom right, #c7d2fe, #e0e7ff, #fbcfe8)" }}
     >
       <div className="max-w-7xl mx-auto w-full p-6">
-        {/* Back Link */}
         <Link
           to="/dashboard"
           className="flex items-center gap-2 text-black font-medium hover:underline mb-4"
@@ -110,7 +132,6 @@ export const SolveProblemPage = () => {
           Back to Dashboard
         </Link>
 
-        {/* Content Side-by-Side */}
         <div className="flex flex-col md:flex-row gap-6">
           {/* Left - Problem */}
           <div className="flex-1 flex flex-col">
@@ -147,6 +168,20 @@ export const SolveProblemPage = () => {
                 <CardTitle className="text-xl font-semibold text-gray-800">Your Solution</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col space-y-4">
+                {/* Language Selector */}
+                <div className="flex gap-4 items-center">
+                  <label className="text-sm font-medium text-gray-700">Language:</label>
+                  <select
+                    value={language}
+                    onChange={(e) => handleLanguageChange(e.target.value)}
+                    className="border border-gray-300 px-3 py-2 rounded text-sm bg-white shadow"
+                  >
+                    <option value="cpp">C++</option>
+                    <option value="java">Java</option>
+                    <option value="py">Python</option>
+                  </select>
+                </div>
+
                 <Textarea
                   className="h-[260px] font-mono bg-gray-50 text-gray-900 border border-gray-300 shadow resize-none"
                   value={code}
@@ -187,7 +222,6 @@ export const SolveProblemPage = () => {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="bg-black text-white text-center py-4 mt-auto">
         <p className="text-sm">© {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking.</p>
       </footer>
