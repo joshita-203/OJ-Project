@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Home, Code } from "lucide-react";
+import { LogOut, Code, Home } from "lucide-react";
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -17,7 +17,7 @@ export const Navbar = () => {
 
   const navItems = [
     { path: "/dashboard", label: "Problems", icon: Home },
-    { path: "/profile", label: "Profile", icon: User },
+    // Removed Profile from navItems
   ];
 
   return (
@@ -53,7 +53,11 @@ export const Navbar = () => {
 
             {/* User Info & Logout */}
             <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-700">
-              <div className="flex items-center space-x-2">
+              {/* Clickable Profile Info */}
+              <div
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => navigate("/profile")}
+              >
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-semibold">
                     {user?.firstname?.charAt(0) || "U"}

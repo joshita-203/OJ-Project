@@ -103,18 +103,25 @@ export const SolveProblemPage = () => {
   const sample = problem.testCases?.[0];
 
   return (
-    <div className="flex flex-col min-h-screen text-gray-900" style={{ background: "linear-gradient(to bottom right, #c7d2fe, #e0e7ff, #fbcfe8)" }}>
-      {/* Page content */}
-      <div className="flex-1 p-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
-          {/* Left - Problem */}
-          <div className="md:w-1/2 space-y-4">
-            <Link to="/dashboard" className="flex items-center gap-2 text-black font-medium hover:underline">
-              <ArrowLeft size={18} />
-              Back to Dashboard
-            </Link>
+    <div
+      className="flex flex-col min-h-screen text-gray-900"
+      style={{ background: "linear-gradient(to bottom right, #c7d2fe, #e0e7ff, #fbcfe8)" }}
+    >
+      <div className="max-w-7xl mx-auto w-full p-6">
+        {/* Back Link */}
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-2 text-black font-medium hover:underline mb-4"
+        >
+          <ArrowLeft size={18} />
+          Back to Dashboard
+        </Link>
 
-            <Card className="bg-white shadow-lg border border-blue-200">
+        {/* Content Side-by-Side */}
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Left - Problem */}
+          <div className="flex-1 flex flex-col">
+            <Card className="bg-white shadow-lg border border-blue-200 flex-1">
               <CardHeader>
                 <CardTitle className="text-2xl font-bold">{problem.title}</CardTitle>
               </CardHeader>
@@ -141,46 +148,55 @@ export const SolveProblemPage = () => {
           </div>
 
           {/* Right - Editor */}
-          <div className="md:w-1/2 space-y-4">
-            <Textarea
-              className="h-64 font-mono bg-white text-gray-900 border border-gray-300 shadow"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
-
-            <Textarea
-              placeholder="Custom Input"
-              className="h-24 font-mono bg-white text-gray-900 border border-gray-300 shadow"
-              value={customInput}
-              onChange={(e) => setCustomInput(e.target.value)}
-            />
-
-            <div className="flex gap-4">
-              <Button onClick={handleRun} className="bg-blue-700 text-white hover:bg-blue-800">Run</Button>
-              <Button
-                onClick={handleSubmit}
-                className="bg-green-700 text-white hover:bg-green-800"
-                disabled={submitting}
-              >
-                {submitting ? "Submitting..." : "Submit"}
-              </Button>
-            </div>
-
-            <Card className="bg-gray-100 border border-gray-300 shadow-md">
+          <div className="flex-1 flex flex-col">
+            <Card className="bg-white shadow-lg border border-gray-300 flex-1">
               <CardHeader>
-                <CardTitle className="text-gray-700">Output</CardTitle>
+                <CardTitle className="text-xl font-semibold text-gray-800">Your Solution</CardTitle>
               </CardHeader>
-              <CardContent>
-                <pre className="whitespace-pre-wrap text-sm text-gray-800">{output}</pre>
+              <CardContent className="flex flex-col space-y-4">
+                <Textarea
+                  className="h-[260px] font-mono bg-gray-50 text-gray-900 border border-gray-300 shadow resize-none"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                />
+
+                <Textarea
+                  placeholder="Custom Input"
+                  className="h-[100px] font-mono bg-gray-50 text-gray-900 border border-gray-300 shadow resize-none"
+                  value={customInput}
+                  onChange={(e) => setCustomInput(e.target.value)}
+                />
+
+                <div className="flex gap-4">
+                  <Button onClick={handleRun} className="bg-blue-700 text-white hover:bg-blue-800">
+                    Run
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    className="bg-green-700 text-white hover:bg-green-800"
+                    disabled={submitting}
+                  >
+                    {submitting ? "Submitting..." : "Submit"}
+                  </Button>
+                </div>
+
+                <Card className="bg-gray-100 border border-gray-300 shadow-md">
+                  <CardHeader>
+                    <CardTitle className="text-gray-700 text-base">Output</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <pre className="whitespace-pre-wrap text-sm text-gray-800">{output}</pre>
+                  </CardContent>
+                </Card>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
 
-      {/* Sticky Footer */}
+      {/* Footer */}
       <footer className="bg-black text-white text-center py-4 mt-auto">
-        <p className="text-sm">© {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking. </p>
+        <p className="text-sm">© {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking.</p>
       </footer>
     </div>
   );

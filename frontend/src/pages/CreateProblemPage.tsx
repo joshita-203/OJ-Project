@@ -147,9 +147,13 @@ export const CreateProblemPage = () => {
                 {/* Test Cases */}
                 <div className="space-y-3">
                   <Label className="text-white text-lg">Test Cases</Label>
+                  <Label className="text-white text-sm italic">
+                       (First test case will be shown to the problem solver. Others will be hidden).
+                  </Label>
+
                   {testCases.map((tc, index) => (
                     <div key={index} className="bg-white/10 p-3 rounded space-y-1 relative border border-white/20">
-                      <Label className="text-white">Input</Label>
+                      <Label className="text-white">Input (#{index + 1})</Label>
                       <Textarea
                         className="bg-white/90 text-black h-20 text-sm"
                         value={tc.input}
@@ -177,6 +181,7 @@ export const CreateProblemPage = () => {
                       )}
                     </div>
                   ))}
+
                   <Button
                     type="button"
                     onClick={addTestCase}
@@ -214,9 +219,8 @@ export const CreateProblemPage = () => {
 
       {/* Sticky Footer */}
       <footer className="w-full text-center text-sm text-white py-6 bg-gradient-to-r from-black via-purple-900 to-black border-t border-white/10 z-10 backdrop-blur-md">
-  © {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking.
-</footer>
-
+        © {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking.
+      </footer>
 
       {/* Custom Animations */}
       <style>
