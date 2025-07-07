@@ -78,15 +78,8 @@ export const SolveProblemPage = () => {
         toast({ title: "✅ All test cases passed!" });
         setOutput("✅ All test cases passed!");
       } else if (data.success && !data.allPassed) {
-        toast({ title: "❌ Some test cases failed", variant: "destructive" });
-        setOutput(
-          data.results
-            .map(
-              (r: any, i: number) =>
-                `#${i + 1} ${r.passed ? "✅" : "❌"}\nInput:\n${r.input}\nExpected:\n${r.expected}\nOutput:\n${r.actual}\n`
-            )
-            .join("\n")
-        );
+        toast({ title: "❌ Incorrect Answer", variant: "destructive" });
+        setOutput("❌ Incorrect Answer");
       } else {
         toast({ title: "❌ Submit failed", variant: "destructive" });
         setOutput(data.error || "Submit failed");

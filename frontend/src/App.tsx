@@ -16,6 +16,7 @@ import { Dashboard } from "@/pages/dashboard";
 import { CreateProblemPage } from "@/pages/CreateProblemPage";
 import { UpdateProblemPage } from "@/pages/UpdateProblemPage";
 import { SolveProblemPage } from "@/pages/SolveProblemPage";
+import { ExploreProblemsPage } from "@/pages/ExploreProblemsPage";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,17 +32,18 @@ const App = () => (
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
-
-              {/* Protected Routes */}
+              <Route path="/explore" element={<ExploreProblemsPage />} />
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute>
+                  <>
                     <Navbar />
                     <Dashboard />
-                  </ProtectedRoute>
+                  </>
                 }
               />
+
+              {/* Protected Routes */}
               <Route
                 path="/create"
                 element={
@@ -74,7 +76,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
 
-            {/* Global Toasts */}
+            {/* Global toasters */}
             <Toaster />
             <Sonner />
           </div>

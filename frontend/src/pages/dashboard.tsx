@@ -1,4 +1,3 @@
-// src/pages/Dashboard.tsx
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -201,13 +200,19 @@ export const Dashboard = () => {
                     <p className="text-purple-200 mb-4 line-clamp-2">
                       {p.statement}
                     </p>
+
+                    {/* Solve Button (redirect to login if not logged in) */}
                     <Button
-                      onClick={() => navigate(`/solve/${p._id}`)}
+                      onClick={() =>
+                        navigate(user ? `/solve/${p._id}` : "/login")
+                      }
                       className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:scale-105 transition-transform mb-2 text-white"
                     >
                       <Play className="w-4 h-4 mr-2" />
-                      Solve Problem
+                      {user ? "Solve Problem" : "Login to Solve"}
                     </Button>
+
+                    {/* Edit/Delete if owner */}
                     {user?._id === p.createdBy._id && (
                       <div className="flex gap-2">
                         <Button

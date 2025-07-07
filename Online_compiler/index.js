@@ -43,6 +43,7 @@ app.post("/submit", async (req, res) => {
   try {
     const filePath = generateFile(language, code);
     let allPassed = true;
+    const results = [];
 
     for (const test of testCases) {
       const actualOutput = await executeCpp(filePath, test.input);
@@ -59,13 +60,19 @@ app.post("/submit", async (req, res) => {
         .replace(/\n/g, "")
         .replace(/\s+/g, " ");
 
-      if (cleanedOutput !== expected) {
-        allPassed = false;
-        break; // exit early if one test fails
-      }
+      const passed = cleanedOutput === expected;
+
+      results.push({
+        input: test.input,
+        expected,
+        actual: cleanedOutput,
+        passed,
+      });
+
+      if (!passed) allPassed = false;
     }
 
-    res.json({ success: true, allPassed }); // ✅ Don't leak test case details
+    res.json({ success: true, allPassed, results });
   } catch (error) {
     console.error("Submit error:", error);
     res.status(500).json({ success: false, error: error.stderr || error.message });
