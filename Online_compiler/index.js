@@ -38,7 +38,7 @@ app.post("/run", async (req, res) => {
   }
 });
 
-// ✅ /submit - Test case based validation
+// ✅ /submit - Secure Test case based validation (no test case exposure)
 app.post("/submit", async (req, res) => {
   const { language = "cpp", code, testCases = [] } = req.body;
 
@@ -49,7 +49,6 @@ app.post("/submit", async (req, res) => {
   try {
     const filePath = generateFile(language, code);
     let allPassed = true;
-    const results = [];
 
     for (const test of testCases) {
       const actualOutput = await executeCode(filePath, test.input);
@@ -66,22 +65,17 @@ app.post("/submit", async (req, res) => {
         .replace(/\n/g, "")
         .replace(/\s+/g, " ");
 
-      const passed = cleanedOutput === expected;
-
-      results.push({
-        input: test.input,
-        expected,
-        actual: cleanedOutput,
-        passed,
-      });
-
-      if (!passed) allPassed = false;
+      if (cleanedOutput !== expected) {
+        allPassed = false;
+        break; // Stop checking further if one fails
+      }
     }
 
-    res.json({ success: true, allPassed, results });
+    // 🔐 Do not send test case data in response
+    return res.json({ success: true, allPassed });
   } catch (error) {
     console.error("Submit error:", error);
-    res.status(500).json({ success: false, error: error.stderr || error.message });
+    return res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 });
 
