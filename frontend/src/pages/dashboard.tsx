@@ -64,13 +64,13 @@ export const Dashboard = () => {
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy":
-        return "bg-emerald-600";
+        return "bg-emerald-500";
       case "Medium":
         return "bg-amber-500";
       case "Hard":
-        return "bg-rose-600";
+        return "bg-rose-500";
       default:
-        return "bg-gray-500";
+        return "bg-gray-400";
     }
   };
 
@@ -101,64 +101,66 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-purple-950 via-purple-800 via-60% to-blue-900 text-white">
-      {/* Background Effects */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute w-80 h-80 bg-purple-500/20 rounded-full blur-3xl top-1/3 left-1/4 animate-pulse" />
-        <div className="absolute w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl bottom-1/4 right-1/3 animate-pulse delay-1000" />
-        <div className="absolute w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl top-0 right-0 animate-pulse delay-1500" />
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 flex-1 pt-12">
+    <div
+      className="flex flex-col min-h-screen text-gray-900 animate-fade-in"
+      style={{
+        background:
+          "linear-gradient(to bottom right, #c7d2fe, #e0e7ff, #fbcfe8)",
+      }}
+    >
+      <div className="max-w-7xl mx-auto w-full p-6 transition-all duration-500">
         {/* Header */}
-        <div className="mb-10 text-center animate-bounce">
-          <h1 className="text-4xl font-bold text-white flex items-center justify-center gap-2">
-            <Sparkles className="text-cyan-300" /> Dashboard
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-bold text-gray-800 flex items-center justify-center gap-2">
+            <Sparkles className="text-purple-600 animate-bounce" /> Dashboard
           </h1>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10 px-6">
-          <Card className="bg-gradient-to-br from-purple-900 via-purple-950 to-black border border-purple-800 shadow-lg hover:scale-105 transition-transform">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+          <Card className="bg-gray-100 border border-gray-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-white">{stats.total}</div>
-              <div className="text-white">Total</div>
+              <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
+              <div className="text-gray-600">Total</div>
             </CardContent>
           </Card>
-          <Card className="bg-emerald-700 border border-emerald-600 shadow-lg hover:scale-105 transition-transform">
+
+          <Card className="bg-emerald-100 border border-emerald-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-white">{stats.easy}</div>
-              <div className="text-white/80">Easy</div>
+              <div className="text-2xl font-bold text-emerald-800">{stats.easy}</div>
+              <div className="text-emerald-700">Easy</div>
             </CardContent>
           </Card>
-          <Card className="bg-amber-600 border border-amber-500 shadow-lg hover:scale-105 transition-transform">
+
+          <Card className="bg-amber-100 border border-amber-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-white">{stats.medium}</div>
-              <div className="text-white/80">Medium</div>
+              <div className="text-2xl font-bold text-amber-800">{stats.medium}</div>
+              <div className="text-amber-700">Medium</div>
             </CardContent>
           </Card>
-          <Card className="bg-rose-700 border border-rose-600 shadow-lg hover:scale-105 transition-transform">
+
+          <Card className="bg-rose-100 border border-rose-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-white">{stats.hard}</div>
-              <div className="text-white/80">Hard</div>
+              <div className="text-2xl font-bold text-rose-800">{stats.hard}</div>
+              <div className="text-rose-700">Hard</div>
             </CardContent>
           </Card>
-          <Card className="bg-indigo-700 border-indigo-600 shadow-lg hover:scale-105 transition-transform">
+
+          <Card className="bg-gray-100 border border-gray-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
-              <Award className="mx-auto mb-1 text-white" />
-              <div className="text-2xl font-bold text-white">{stats.points}</div>
-              <div className="text-white/80">Points</div>
+              <Award className="mx-auto mb-1 text-gray-800" />
+              <div className="text-2xl font-bold text-gray-800">{stats.points}</div>
+              <div className="text-gray-600">Points</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Create Button */}
         {user && (
-          <div className="mb-6 flex justify-end px-6">
+          <div className="mb-6 flex justify-end">
             <Button
               onClick={() => navigate("/create")}
-              className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold shadow-lg hover:scale-105 transition-transform"
+              className="bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white font-semibold shadow-md transition-transform active:scale-95"
             >
               + Create New Problem
             </Button>
@@ -166,8 +168,8 @@ export const Dashboard = () => {
         )}
 
         {/* Tabs */}
-        <Tabs value={tab} onValueChange={setTab} className="mb-8 px-6">
-          <TabsList className="grid grid-cols-4 bg-gradient-to-r from-purple-900 via-black to-purple-950 border border-purple-700 text-white">
+        <Tabs value={tab} onValueChange={setTab} className="mb-8">
+          <TabsList className="grid grid-cols-4 bg-white border border-gray-300 text-gray-700 shadow-md">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="easy">Easy</TabsTrigger>
             <TabsTrigger value="medium">Medium</TabsTrigger>
@@ -179,45 +181,39 @@ export const Dashboard = () => {
               {filteredProblems.map((p) => (
                 <Card
                   key={p._id}
-                  className="bg-gradient-to-br from-purple-900 via-purple-950 to-black border border-purple-800 shadow-md transition-transform hover:scale-[1.02] hover:shadow-xl"
+                  className="bg-white shadow-md border border-gray-300 hover:shadow-lg transition-transform hover:scale-[1.02] duration-300"
                 >
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-white">{p.title}</CardTitle>
-                        <CardDescription className="text-purple-300">
+                        <CardTitle className="text-gray-900">{p.title}</CardTitle>
+                        <CardDescription className="text-gray-500">
                           {p.createdBy.firstname} {p.createdBy.lastname}
                         </CardDescription>
                       </div>
-                      <Badge
-                        className={`${getDifficultyColor(p.difficulty)} text-white`}
-                      >
+                      <Badge className={`${getDifficultyColor(p.difficulty)} text-white`}>
                         {p.difficulty}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-purple-200 mb-4 line-clamp-2">
-                      {p.statement}
-                    </p>
+                    <p className="text-gray-600 mb-4 line-clamp-2">{p.statement}</p>
 
-                    {/* Solve Button (redirect to login if not logged in) */}
                     <Button
                       onClick={() =>
                         navigate(user ? `/solve/${p._id}` : "/login")
                       }
-                      className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:scale-105 transition-transform mb-2 text-white"
+                      className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 text-white hover:scale-105 transition-transform duration-300 active:scale-95 mb-2"
                     >
                       <Play className="w-4 h-4 mr-2" />
                       {user ? "Solve Problem" : "Login to Solve"}
                     </Button>
 
-                    {/* Edit/Delete if owner */}
                     {user?._id === p.createdBy._id && (
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          className="w-full bg-blue-600 hover:bg-blue-700 transition-transform hover:scale-105"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-transform duration-200 active:scale-95"
                           onClick={() => navigate(`/update/${p._id}`)}
                         >
                           <Edit className="w-4 h-4 mr-1" />
@@ -225,7 +221,7 @@ export const Dashboard = () => {
                         </Button>
                         <Button
                           size="sm"
-                          className="w-full bg-red-600 hover:bg-red-700 transition-transform hover:scale-105"
+                          className="w-full bg-red-600 hover:bg-red-700 text-white transition-transform duration-200 active:scale-95"
                           onClick={() => deleteProblem(p._id)}
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
@@ -241,8 +237,7 @@ export const Dashboard = () => {
         </Tabs>
       </div>
 
-      {/* Sticky Footer */}
-      <footer className="bg-gradient-to-r from-black via-purple-900 to-black text-white text-center py-6">
+      <footer className="bg-black text-white text-center py-4 mt-auto">
         <p className="text-sm">
           © {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking.
         </p>

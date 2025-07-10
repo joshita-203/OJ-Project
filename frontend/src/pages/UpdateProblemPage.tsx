@@ -1,4 +1,3 @@
-// src/pages/UpdateProblemPage.tsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Code, Trash, Plus } from "lucide-react";
+import { ArrowLeft, Code, Trash, Plus, Sparkles } from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -97,121 +96,146 @@ export const UpdateProblemPage = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 flex items-center justify-center bg-gradient-to-br from-indigo-950 to-blue-900 text-white relative">
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute w-80 h-80 bg-cyan-500/20 rounded-full blur-3xl top-1/3 left-1/4 animate-pulse" />
-        <div className="absolute w-72 h-72 bg-blue-400/20 rounded-full blur-3xl bottom-1/4 right-1/3 animate-pulse delay-1000" />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 via-pink-100 to-blue-100 relative overflow-hidden">
+      {/* Glowing Background */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-300/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-2/3 right-1/3 w-80 h-80 bg-pink-300/20 rounded-full blur-2xl animate-pulse" />
+        <div className="absolute bottom-1/3 left-1/2 w-64 h-64 bg-blue-300/20 rounded-full blur-2xl animate-pulse" />
       </div>
 
+      {/* ✅ Absolute "Back to Dashboard" */}
       <Link
         to="/dashboard"
-        className="absolute top-6 left-6 z-20 flex items-center space-x-2 text-blue-200 hover:text-cyan-300 transition"
+        className="absolute top-6 left-6 z-30 flex items-center space-x-2 text-black hover:text-purple-600 text-lg font-semibold transition-colors duration-300 group"
       >
-        <ArrowLeft className="w-5 h-5" />
-        <span className="font-medium">Back to Dashboard</span>
+        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+        <span>Back to Dashboard</span>
       </Link>
 
-      <div className="relative z-10 w-full max-w-2xl">
-        <Card className="bg-blue-900/40 backdrop-blur-md border-blue-300/30">
-          <CardHeader className="text-center space-y-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
-              <Code className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-3xl font-bold text-white">Update Problem</CardTitle>
-          </CardHeader>
+      {/* Main Content */}
+      <main className="flex-grow flex items-center justify-center px-4 pt-32 pb-8">
+        <div className="relative z-10 w-full max-w-4xl animate-fade-in-up">
+          <Card className="bg-white border border-purple-200 shadow-2xl">
+            <CardHeader className="text-center space-y-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto shadow-lg animate-bounce">
+                <Code className="w-8 h-8 text-white" />
+              </div>
+              <CardTitle className="text-3xl text-black font-bold">
+                Update Problem
+              </CardTitle>
+            </CardHeader>
 
-          <CardContent className="space-y-6">
-            <form onSubmit={handleUpdate} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                  className="bg-white/90 text-black h-12"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="statement">Statement</Label>
-                <Textarea
-                  id="statement"
-                  value={statement}
-                  onChange={(e) => setStatement(e.target.value)}
-                  required
-                  className="bg-white/90 text-black h-36"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty</Label>
-                <select
-                  id="difficulty"
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value)}
-                  className="bg-white/90 text-black h-12 w-full rounded px-4"
-                >
-                  <option>Easy</option>
-                  <option>Medium</option>
-                  <option>Hard</option>
-                </select>
-              </div>
+            <CardContent className="space-y-4 px-6 py-2">
+              <form onSubmit={handleUpdate} className="space-y-4">
+                <div className="space-y-1">
+                  <Label htmlFor="title" className="text-black text-lg">Title</Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    className="bg-gradient-to-r from-blue-100 to-purple-100 text-black h-12 text-lg"
+                    placeholder="Enter problem title"
+                  />
+                </div>
 
-              {/* Test Cases Section */}
-              <div className="space-y-4">
-                <Label className="text-lg font-medium">Test Cases</Label>
-                {testCases.map((tc, index) => (
-                  <div key={index} className="bg-blue-800/50 p-4 rounded space-y-2 relative">
-                    <Label>Input</Label>
-                    <Textarea
-                      className="bg-white/90 text-black"
-                      value={tc.input}
-                      onChange={(e) => handleTestCaseChange(index, "input", e.target.value)}
-                      placeholder="Input"
-                      required
-                    />
-                    <Label>Expected Output</Label>
-                    <Textarea
-                      className="bg-white/90 text-black"
-                      value={tc.expectedOutput}
-                      onChange={(e) =>
-                        handleTestCaseChange(index, "expectedOutput", e.target.value)
-                      }
-                      placeholder="Expected Output"
-                      required
-                    />
-                    {testCases.length > 1 && (
-                      <Button
-                        type="button"
-                        onClick={() => removeTestCase(index)}
-                        variant="destructive"
-                        className="absolute top-2 right-2"
-                      >
-                        <Trash size={16} />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                <div className="space-y-1">
+                  <Label htmlFor="statement" className="text-black text-lg">Statement</Label>
+                  <Textarea
+                    id="statement"
+                    value={statement}
+                    onChange={(e) => setStatement(e.target.value)}
+                    required
+                    className="bg-gradient-to-r from-blue-100 to-purple-100 text-black h-40 text-sm"
+                    placeholder="Enter problem description"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="difficulty" className="text-black text-lg">Difficulty</Label>
+                  <select
+                    id="difficulty"
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
+                    className="bg-gradient-to-r from-blue-100 to-purple-100 text-black h-12 w-full text-lg rounded px-4"
+                  >
+                    <option>Easy</option>
+                    <option>Medium</option>
+                    <option>Hard</option>
+                  </select>
+                </div>
+
+                {/* Test Cases */}
+                <div className="space-y-3">
+                  <Label className="text-black text-lg">Test Cases</Label>
+                  <Label className="text-sm text-gray-600 italic">
+                    (First test case will be visible to the solver)
+                  </Label>
+
+                  {testCases.map((tc, index) => (
+                    <div key={index} className="bg-gradient-to-r from-blue-100 to-purple-100 p-3 rounded space-y-1 relative border border-white/20">
+                      <Label className="text-black">Input (#{index + 1})</Label>
+                      <Textarea
+                        className="bg-white text-black h-20 text-sm"
+                        value={tc.input}
+                        onChange={(e) => handleTestCaseChange(index, "input", e.target.value)}
+                        placeholder="Input"
+                        required
+                      />
+                      <Label className="text-black">Expected Output</Label>
+                      <Textarea
+                        className="bg-white text-black h-20 text-sm"
+                        value={tc.expectedOutput}
+                        onChange={(e) => handleTestCaseChange(index, "expectedOutput", e.target.value)}
+                        placeholder="Expected Output"
+                        required
+                      />
+                      {testCases.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => removeTestCase(index)}
+                          variant="destructive"
+                          className="absolute top-2 right-2"
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+
+                  <Button
+                    type="button"
+                    onClick={addTestCase}
+                    className="bg-blue-200 text-black font-semibold hover:bg-blue-300 shadow-md hover:scale-105 transition-all"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    Add Test Case
+                  </Button>
+                </div>
+
                 <Button
-                  type="button"
-                  onClick={addTestCase}
-                  className="bg-green-500 text-white hover:bg-green-600"
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-purple-400 to-cyan-500 text-white font-semibold h-12 text-lg transition-all duration-300 hover:scale-105"
                 >
-                  <Plus size={16} className="mr-2" />
-                  Add Test Case
+                  {isLoading ? "Updating..." : (
+                    <div className="flex items-center">
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Update Problem
+                    </div>
+                  )}
                 </Button>
-              </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
 
-              <Button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold hover:scale-105"
-              >
-                {isLoading ? "Updating..." : "Update Problem"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Footer */}
+      <footer className="w-full text-center text-sm text-white py-6 bg-black border-t border-white/10 z-10">
+        © {new Date().getFullYear()} Beyond code. 🚀 A mindset for better thinking.
+      </footer>
     </div>
   );
 };
