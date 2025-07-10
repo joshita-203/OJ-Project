@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const generateFile = require("./generateFile");
 const executeCode = require("./executeCode");
+const generateAiResponse = require("./generateAiResponse");
 
 const app = express();
 const PORT = 8000;
@@ -77,6 +78,25 @@ app.post("/submit", async (req, res) => {
     console.error("Submit error:", error);
     return res.status(500).json({ success: false, error: "Internal Server Error" });
   }
+});
+
+app.post("/ai-review",async (req,res) => {
+      const{code}=req.body;
+      if(code==undefined||code.trim() === ''){
+        return res.status(400).json({
+             success:false,
+             error: "Empty code! Please provide some code to execute."
+        });
+      }
+      try {
+        const aiResponse = await generateAiResponse(code);
+        res.json({
+             success: true,
+             review: aiResponse
+        });
+      } catch (error) {
+        console.error('Error executing code:',error.message);
+      }
 });
 
 app.listen(PORT, () => {

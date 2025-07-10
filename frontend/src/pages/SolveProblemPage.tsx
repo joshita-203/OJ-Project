@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import ReactMarkdown from "react-markdown";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 const COMPILER_URL = import.meta.env.VITE_COMPILER_URL;
@@ -25,6 +26,8 @@ export const SolveProblemPage = () => {
   const [code, setCode] = useState(`#include <bits/stdc++.h>\nusing namespace std;\nint main(){\n  return 0;\n}`);
   const [customInput, setCustomInput] = useState("");
   const [output, setOutput] = useState("");
+  const [review, setReview] = useState("Click 'AI Review' to get code feedback");
+  const [reviewLoading, setReviewLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -101,6 +104,30 @@ export const SolveProblemPage = () => {
       setOutput("Submit failed");
     }
     setSubmitting(false);
+  };
+
+  const handleAIReview = async () => {
+    setReviewLoading(true);
+    setReview("Generating review...");
+
+    try {
+      const res = await fetch(`${COMPILER_URL}/ai-review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setReview(data.review);
+      } else {
+        setReview("❌ Failed to get review.");
+      }
+    } catch {
+      setReview("❌ AI review request failed.");
+    }
+
+    setReviewLoading(false);
   };
 
   const handleLanguageChange = (lang: string) => {
@@ -195,7 +222,7 @@ export const SolveProblemPage = () => {
                   onChange={(e) => setCustomInput(e.target.value)}
                 />
 
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap">
                   <Button onClick={handleRun} className="bg-blue-700 text-white hover:bg-blue-800">
                     Run
                   </Button>
@@ -206,6 +233,13 @@ export const SolveProblemPage = () => {
                   >
                     {submitting ? "Submitting..." : "Submit"}
                   </Button>
+                  <Button
+                    onClick={handleAIReview}
+                    className="bg-purple-700 text-white hover:bg-purple-800"
+                    disabled={reviewLoading}
+                  >
+                    {reviewLoading ? "Reviewing..." : "AI Review"}
+                  </Button>
                 </div>
 
                 <Card className="bg-gray-100 border border-gray-300 shadow-md">
@@ -214,6 +248,17 @@ export const SolveProblemPage = () => {
                   </CardHeader>
                   <CardContent>
                     <pre className="whitespace-pre-wrap text-sm text-gray-800">{output}</pre>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-purple-50 border border-purple-300 shadow-md mt-4">
+                  <CardHeader>
+                    <CardTitle className="text-purple-800 text-base">🔎 AI Code Review</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="prose prose-sm text-gray-800 whitespace-pre-wrap">
+                      <ReactMarkdown>{review}</ReactMarkdown>
+                    </div>
                   </CardContent>
                 </Card>
               </CardContent>
