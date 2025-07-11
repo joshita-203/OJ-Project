@@ -20,7 +20,7 @@ interface Problem {
   statement: string;
   difficulty: string;
 }
-
+                                              
 export const ExploreProblemsPage = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const { user } = useAuth();
@@ -31,7 +31,7 @@ export const ExploreProblemsPage = () => {
       .then((data) => setProblems(data))
       .catch((err) => console.error("Error loading problems:", err));
   }, []);
-
+ 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy":
@@ -44,7 +44,7 @@ export const ExploreProblemsPage = () => {
         return "bg-gray-400";
     }
   };
-
+                  
   return (
     <div
       className="flex flex-col min-h-screen text-gray-900 animate-fade-in"
@@ -61,7 +61,7 @@ export const ExploreProblemsPage = () => {
             Explore Problems
           </h1>
         </div>
-
+                                
         {/* Problem Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {problems.map((p) => (
@@ -99,7 +99,7 @@ export const ExploreProblemsPage = () => {
           ))}
         </div>
       </div>
-
+                                                      
       {/* Footer */}
       <footer className="bg-black text-white text-center py-4 mt-auto">
         <p className="text-sm">

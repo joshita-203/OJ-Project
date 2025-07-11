@@ -5,7 +5,8 @@ const executeCode = require("./executeCode");
 const generateAiResponse = require("./generateAiResponse");
 
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
+
 
 app.use(cors());
 app.use(express.json());
@@ -99,6 +100,6 @@ app.post("/ai-review",async (req,res) => {
       }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Compiler server running on port ${PORT}`);
 });
