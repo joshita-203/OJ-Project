@@ -7,7 +7,6 @@ const generateAiResponse = require("./generateAiResponse");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,7 +20,7 @@ app.post("/run", async (req, res) => {
   const { language = "cpp", code, input = "", testCases = [] } = req.body;
 
   if (!code) {
-    return res.status(400).json({ success: false, error: "Empty code body" });
+    return res.status(400).json({ success: false, output: "❌ Code is empty" });
   }
 
   const finalInput = input.trim()
@@ -36,16 +35,24 @@ app.post("/run", async (req, res) => {
     res.json({ success: true, output });
   } catch (error) {
     console.error("Execution error:", error);
-    res.status(500).json({ success: false, error: error.stderr || error.message });
+    const combinedError = [error?.error, error?.stderr]
+      .filter(Boolean)
+      .join("\n")
+      .trim() || "❌ Unknown error";
+
+    res.status(200).json({
+      success: false,
+      output: combinedError
+    });
   }
 });
 
-// ✅ /submit - Secure Test case based validation (no test case exposure)
+// ✅ /submit - Runs on all test cases securely
 app.post("/submit", async (req, res) => {
   const { language = "cpp", code, testCases = [] } = req.body;
 
   if (!code || testCases.length === 0) {
-    return res.status(400).json({ success: false, error: "Code and test cases are required" });
+    return res.status(400).json({ success: false, output: "❌ Code and test cases required" });
   }
 
   try {
@@ -53,7 +60,21 @@ app.post("/submit", async (req, res) => {
     let allPassed = true;
 
     for (const test of testCases) {
-      const actualOutput = await executeCode(filePath, test.input);
+      let actualOutput = "";
+      try {
+        actualOutput = await executeCode(filePath, test.input);
+      } catch (error) {
+        const combinedError = [error?.error, error?.stderr]
+          .filter(Boolean)
+          .join("\n")
+          .trim() || "❌ Unknown error";
+
+        return res.status(200).json({
+          success: false,
+          allPassed: false,
+          output: combinedError
+        });
+      }
 
       const cleanedOutput = actualOutput
         .trim()
@@ -69,37 +90,49 @@ app.post("/submit", async (req, res) => {
 
       if (cleanedOutput !== expected) {
         allPassed = false;
-        break; // Stop checking further if one fails
+        break;
       }
     }
 
-    // 🔐 Do not send test case data in response
-    return res.json({ success: true, allPassed });
+    return res.status(200).json({ success: true, allPassed });
   } catch (error) {
     console.error("Submit error:", error);
-    return res.status(500).json({ success: false, error: "Internal Server Error" });
+    const combinedError = [error?.error, error?.stderr]
+      .filter(Boolean)
+      .join("\n")
+      .trim() || "❌ Unknown error";
+
+    return res.status(200).json({
+      success: false,
+      allPassed: false,
+      output: combinedError
+    });
   }
 });
 
-app.post("/ai-review",async (req,res) => {
-      const{code}=req.body;
-      if(code==undefined||code.trim() === ''){
-        return res.status(400).json({
-             success:false,
-             error: "Empty code! Please provide some code to execute."
-        });
-      }
-      try {
-        const aiResponse = await generateAiResponse(code);
-        res.json({
-             success: true,
-             review: aiResponse
-        });
-      } catch (error) {
-        console.error('Error executing code:',error.message);
-      }
+// ✅ /ai-review - OpenAI-based code feedback
+app.post("/ai-review", async (req, res) => {
+  const { code } = req.body;
+
+  if (!code || code.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      error: "❌ Empty code! Please provide some code to review."
+    });
+  }
+
+  try {
+    const aiResponse = await generateAiResponse(code);
+    res.json({ success: true, review: aiResponse });
+  } catch (error) {
+    console.error("AI review error:", error.message);
+    res.status(500).json({
+      success: false,
+      review: "❌ AI review failed due to internal error."
+    });
+  }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Compiler server running on port ${PORT}`);
 });

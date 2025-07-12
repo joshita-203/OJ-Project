@@ -12,22 +12,39 @@ const executeCode = async (filepath, input = "") => {
   const ext = path.extname(filepath);
   const jobDir = path.dirname(filepath);
   const jobId = path.basename(filepath).split(".")[0];
+  const TIME_LIMIT = 3000; // 3 seconds
 
   return new Promise((resolve, reject) => {
     // ✅ C++
     if (ext === ".cpp") {
       const outputFile = path.join(outputPath, `${jobId}.exe`);
       exec(`g++ "${filepath}" -o "${outputFile}"`, (compileErr, stdout, stderr) => {
-        if (compileErr || stderr) return reject({ error: compileErr, stderr });
+        if (compileErr || stderr) {
+          return reject({
+            error: "❌ Compilation Error",
+            stderr: stderr || compileErr.message,
+          });
+        }
 
         const run = spawn(outputFile);
         let output = "", errorOutput = "";
 
-        run.stdout.on("data", data => output += data.toString());
-        run.stderr.on("data", data => errorOutput += data.toString());
+        const timeout = setTimeout(() => {
+          run.kill("SIGKILL");
+          reject({ error: "❌ Time Limit Exceeded (3s)", stderr: "" });
+        }, TIME_LIMIT);
 
-        run.on("close", code => {
-          if (code !== 0) return reject({ error: `Runtime error with exit code ${code}`, stderr: errorOutput });
+        run.stdout.on("data", (data) => (output += data.toString()));
+        run.stderr.on("data", (data) => (errorOutput += data.toString()));
+
+        run.on("close", (code) => {
+          clearTimeout(timeout);
+          if (code !== 0) {
+            return reject({
+              error: "❌ Runtime Error",
+              stderr: errorOutput || `Process exited with code ${code}`,
+            });
+          }
           resolve(output.trim());
         });
 
@@ -41,11 +58,22 @@ const executeCode = async (filepath, input = "") => {
       const run = spawn("python", [filepath]);
       let output = "", errorOutput = "";
 
-      run.stdout.on("data", data => output += data.toString());
-      run.stderr.on("data", data => errorOutput += data.toString());
+      const timeout = setTimeout(() => {
+        run.kill("SIGKILL");
+        reject({ error: "❌ Time Limit Exceeded (3s)", stderr: "" });
+      }, TIME_LIMIT);
 
-      run.on("close", code => {
-        if (code !== 0) return reject({ error: `Runtime error with exit code ${code}`, stderr: errorOutput });
+      run.stdout.on("data", (data) => (output += data.toString()));
+      run.stderr.on("data", (data) => (errorOutput += data.toString()));
+
+      run.on("close", (code) => {
+        clearTimeout(timeout);
+        if (code !== 0) {
+          return reject({
+            error: "❌ Runtime Error",
+            stderr: errorOutput || `Process exited with code ${code}`,
+          });
+        }
         resolve(output.trim());
       });
 
@@ -55,18 +83,34 @@ const executeCode = async (filepath, input = "") => {
 
     // ✅ Java
     else if (ext === ".java") {
-      const classname = "Main";
+      const className = "Main";
       exec(`javac "${filepath}"`, (compileErr, stdout, stderr) => {
-        if (compileErr || stderr) return reject({ error: compileErr, stderr });
+        if (compileErr || stderr) {
+          return reject({
+            error: "❌ Compilation Error",
+            stderr: stderr || compileErr.message,
+          });
+        }
 
-        const run = spawn("java", ["-cp", jobDir, classname]);
+        const run = spawn("java", ["-cp", jobDir, className]);
         let output = "", errorOutput = "";
 
-        run.stdout.on("data", data => output += data.toString());
-        run.stderr.on("data", data => errorOutput += data.toString());
+        const timeout = setTimeout(() => {
+          run.kill("SIGKILL");
+          reject({ error: "❌ Time Limit Exceeded (3s)", stderr: "" });
+        }, TIME_LIMIT);
 
-        run.on("close", code => {
-          if (code !== 0) return reject({ error: `Runtime error with exit code ${code}`, stderr: errorOutput });
+        run.stdout.on("data", (data) => (output += data.toString()));
+        run.stderr.on("data", (data) => (errorOutput += data.toString()));
+
+        run.on("close", (code) => {
+          clearTimeout(timeout);
+          if (code !== 0) {
+            return reject({
+              error: "❌ Runtime Error",
+              stderr: errorOutput || `Process exited with code ${code}`,
+            });
+          }
           resolve(output.trim());
         });
 
@@ -75,9 +119,9 @@ const executeCode = async (filepath, input = "") => {
       });
     }
 
-    // ❌ Unsupported language
+    // ❌ Unsupported Language
     else {
-      reject({ error: "Unsupported language" });
+      reject({ error: "❌ Unsupported Language", stderr: "" });
     }
   });
 };

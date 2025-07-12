@@ -44,7 +44,7 @@ export const SolveProblemPage = () => {
   }, [id, toast]);
 
   const handleRun = async () => {
-    setOutput("Running...");
+    setOutput("⏳ Running...");
 
     const inputToSend = customInput.trim()
       ? customInput
@@ -63,9 +63,15 @@ export const SolveProblemPage = () => {
       });
 
       const data = await res.json();
-      setOutput(data.output || data.error || "No output");
+
+      if (data.success) {
+        setOutput(data.output || "✅ No output");
+      } else {
+        const errorMessage = data.output || data.stderr || "❌ Unknown runtime/compile error";
+        setOutput(`❌ Error:\n${errorMessage}`);
+      }
     } catch {
-      setOutput("Run failed");
+      setOutput("❌ Run failed due to network/server error");
     }
   };
 
@@ -96,12 +102,13 @@ export const SolveProblemPage = () => {
         toast({ title: "❌ Incorrect Answer", variant: "destructive" });
         setOutput("❌ Incorrect Answer");
       } else {
-        toast({ title: "❌ Submit failed", variant: "destructive" });
-        setOutput(data.error || "Submit failed");
+        const errorMessage = data.output || data.stderr || "❌ Unknown execution error";
+        toast({ title: "❌ Error", variant: "destructive" });
+        setOutput(`❌ Error:\n${errorMessage}`);
       }
     } catch {
-      toast({ title: "❌ Network error during submit", variant: "destructive" });
-      setOutput("Submit failed");
+      toast({ title: "❌ Submit failed", variant: "destructive" });
+      setOutput("❌ Submit failed due to network/server error");
     }
     setSubmitting(false);
   };
@@ -146,15 +153,9 @@ export const SolveProblemPage = () => {
   const sample = problem.testCases?.[0];
 
   return (
-    <div
-      className="flex flex-col min-h-screen text-gray-900"
-      style={{ background: "linear-gradient(to bottom right, #c7d2fe, #e0e7ff, #fbcfe8)" }}
-    >
+    <div className="flex flex-col min-h-screen text-gray-900 bg-gradient-to-br from-indigo-200 via-indigo-100 to-pink-100">
       <div className="max-w-7xl mx-auto w-full p-6">
-        <Link
-          to="/dashboard"
-          className="flex items-center gap-2 text-black font-medium hover:underline mb-4"
-        >
+        <Link to="/dashboard" className="flex items-center gap-2 text-black font-medium hover:underline mb-4">
           <ArrowLeft size={18} />
           Back to Dashboard
         </Link>
@@ -168,7 +169,6 @@ export const SolveProblemPage = () => {
               </CardHeader>
               <CardContent>
                 <p className="mb-4 whitespace-pre-wrap text-gray-800">{problem.statement}</p>
-
                 {sample && (
                   <div className="mt-6">
                     <h3 className="font-semibold text-blue-700 mb-2">Sample Test Case</h3>
