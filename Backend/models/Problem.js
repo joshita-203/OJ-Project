@@ -17,6 +17,7 @@ const problemSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
     statement: {
       type: String,
@@ -29,10 +30,10 @@ const problemSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
+      ref: "User", // 🔹 Use correct casing
       required: true,
     },
-    testCases: [testCaseSchema], // ✅ New field for storing test cases
+    testCases: [testCaseSchema],
   },
   { timestamps: true }
 );

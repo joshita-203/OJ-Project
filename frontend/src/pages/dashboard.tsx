@@ -16,7 +16,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
-import { Edit, Trash2, Play, Award, Sparkles } from "lucide-react";
+import { Edit, Trash2, Play, Sparkles } from "lucide-react";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -47,7 +47,7 @@ export const Dashboard = () => {
     try {
       const res = await fetch(`${BASE_URL}/api/problems`);
       const data = await res.json();
-      setProblems(data);
+      setProblems(Array.isArray(data) ? data : data.problems || []);
     } catch (err) {
       console.error("Failed to fetch problems:", err);
     }
@@ -74,19 +74,6 @@ export const Dashboard = () => {
     }
   };
 
-  const getPoints = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy":
-        return 10;
-      case "Medium":
-        return 25;
-      case "Hard":
-        return 50;
-      default:
-        return 0;
-    }
-  };
-
   const filteredProblems =
     tab === "all"
       ? problems
@@ -97,7 +84,6 @@ export const Dashboard = () => {
     easy: problems.filter((p) => p.difficulty === "Easy").length,
     medium: problems.filter((p) => p.difficulty === "Medium").length,
     hard: problems.filter((p) => p.difficulty === "Hard").length,
-    points: problems.reduce((sum, p) => sum + getPoints(p.difficulty), 0),
   };
 
   return (
@@ -109,15 +95,14 @@ export const Dashboard = () => {
       }}
     >
       <div className="max-w-7xl mx-auto w-full p-6 transition-all duration-500">
-        {/* Header */}
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-bold text-gray-800 flex items-center justify-center gap-2">
             <Sparkles className="text-purple-600 animate-bounce" /> Dashboard
           </h1>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+        {/* Stats without Points */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <Card className="bg-gray-100 border border-gray-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
@@ -145,17 +130,8 @@ export const Dashboard = () => {
               <div className="text-rose-700">Hard</div>
             </CardContent>
           </Card>
-
-          <Card className="bg-gray-100 border border-gray-300 shadow-md hover:scale-105 transition-transform duration-300">
-            <CardContent className="p-4 text-center">
-              <Award className="mx-auto mb-1 text-gray-800" />
-              <div className="text-2xl font-bold text-gray-800">{stats.points}</div>
-              <div className="text-gray-600">Points</div>
-            </CardContent>
-          </Card>
         </div>
 
-        {/* Create Button */}
         {user && (
           <div className="mb-6 flex justify-end">
             <Button
@@ -167,7 +143,6 @@ export const Dashboard = () => {
           </div>
         )}
 
-        {/* Tabs */}
         <Tabs value={tab} onValueChange={setTab} className="mb-8">
           <TabsList className="grid grid-cols-4 bg-white border border-gray-300 text-gray-700 shadow-md">
             <TabsTrigger value="all">All</TabsTrigger>

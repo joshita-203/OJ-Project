@@ -8,16 +8,21 @@ router.post("/", authMiddleware, async (req, res) => {
   try {
     const { title, statement, difficulty, testCases } = req.body;
 
+    if (!(title && statement && difficulty)) {
+      return res.status(400).json({ error: "Please fill all required fields" });
+    }
+
     const problem = await Problem.create({
       title,
       statement,
       difficulty,
       createdBy: req.user._id,
-      testCases, // ✅ Save test cases
+      testCases: testCases || [],
     });
 
     res.status(201).json(problem);
   } catch (err) {
+    console.error("Create Problem Error:", err);
     res.status(500).json({ error: "Failed to create problem" });
   }
 });
@@ -28,6 +33,7 @@ router.get("/", async (req, res) => {
     const problems = await Problem.find().populate("createdBy", "firstname lastname email");
     res.json(problems);
   } catch (err) {
+    console.error("Fetch Problems Error:", err);
     res.status(500).json({ error: "Failed to fetch problems" });
   }
 });
@@ -41,6 +47,7 @@ router.get("/:id", async (req, res) => {
     }
     res.json(problem);
   } catch (err) {
+    console.error("Fetch Problem Error:", err);
     res.status(500).json({ error: "Failed to fetch problem" });
   }
 });
@@ -59,6 +66,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
     await problem.save();
     res.json(problem);
   } catch (err) {
+    console.error("Update Problem Error:", err);
     res.status(500).json({ error: "Failed to update problem" });
   }
 });
@@ -76,6 +84,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
     await problem.deleteOne();
     res.send("Problem deleted successfully");
   } catch (err) {
+    console.error("Delete Problem Error:", err);
     res.status(500).json({ error: "Failed to delete problem" });
   }
 });

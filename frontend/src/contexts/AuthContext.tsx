@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 interface User {
   _id: string;
@@ -11,7 +17,12 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (firstname: string, lastname: string, email: string, password: string) => Promise<void>;
+  signup: (
+    firstname: string,
+    lastname: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -31,10 +42,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // ✅ Load user and token on app load
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
-    
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
@@ -42,12 +54,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
+  // ⏱️ Heartbeat - Send ping every minute to record time
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    const sendHeartbeat = async () => {
+      try {
+        if (token) {
+          await fetch("http://localhost:5000/api/user/heartbeat", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+        }
+      } catch (err) {
+        console.error("Heartbeat failed:", err);
+      }
+    };
+
+    if (token) {
+      intervalId = setInterval(sendHeartbeat, 60 * 1000); // 🔁 every minute
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [token]);
+
   const login = async (email: string, password: string) => {
     const response = await fetch("http://localhost:5000/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
@@ -63,12 +102,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem("user", JSON.stringify(data.user));
   };
 
-  const signup = async (firstname: string, lastname: string, email: string, password: string) => {
+  const signup = async (
+    firstname: string,
+    lastname: string,
+    email: string,
+    password: string
+  ) => {
     const response = await fetch("http://localhost:5000/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ firstname, lastname, email, password }),
     });
 
@@ -78,9 +120,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const data = await response.json();
-    setToken(data.token); // ✅ Fixed this line
+    setToken(data.token);
     setUser(data.user);
-    localStorage.setItem("token", data.token); // ✅ Fixed this line
+    localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
   };
 
@@ -92,7 +134,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, signup, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, token, login, signup, logout, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -7,110 +7,111 @@ const User = require("./models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// ✅ Import problem routes
-const problemRoutes = require("./routes/problemRoutes");
-
+// ✅ Load environment variables early
 dotenv.config();
-app.use(cors());
-DBConnection();
 
+// ✅ Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Connect to MongoDB
+DBConnection();
+
+// ✅ Import routes
+const problemRoutes = require("./routes/problemRoutes");
+const userRoutes = require("./routes/userRoutes");
+
 // ✅ Test route
 app.get("/", (req, res) => {
-    res.send("Hello WORLD !");
+  res.send("Hello WORLD !");
 });
 
 // ✅ Register
 app.post("/register", async (req, res) => {
-    try {
-        const { firstname, lastname, email, password } = req.body;
+  try {
+    const { firstname, lastname, email, password } = req.body;
 
-        if (!(firstname && lastname && email && password)) {
-            return res.status(400).send("Please enter all the information");
-        }
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).send("User already exists with the same email");
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = await User.create({
-            firstname,
-            lastname,
-            email,
-            password: hashedPassword,
-        });
-
-        const token = jwt.sign(
-            { id: user._id, email },
-            process.env.SECRET_KEY,
-            { expiresIn: '1h' }
-        );
-
-        user.password = undefined; // Don't send hashed password
-
-        res.status(200).json({
-            message: 'You have successfully registered!',
-            token, // ✅ Send token separately
-            user
-        });
-
-    } catch (error) {
-        console.log("Register error:", error);
-        res.status(500).send("Server error during registration");
+    if (!(firstname && lastname && email && password)) {
+      return res.status(400).send("Please enter all the information");
     }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).send("User already exists with the same email");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      firstname,
+      lastname,
+      email,
+      password: hashedPassword,
+    });
+
+    const token = jwt.sign({ id: user._id, email }, process.env.SECRET_KEY, {
+      expiresIn: "1h",
+    });
+
+    user.password = undefined;
+
+    res.status(200).json({
+      message: "You have successfully registered!",
+      token,
+      user,
+    });
+  } catch (error) {
+    console.log("Register error:", error);
+    res.status(500).send("Server error during registration");
+  }
 });
 
 // ✅ Login
 app.post("/login", async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-        if (!(email && password)) {
-            return res.status(400).send("Please enter both email and password");
-        }
-
-        const user = await User.findOne({ email });
-
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).send("Invalid email or password");
-        }
-
-        const token = jwt.sign(
-            { id: user._id, email },
-            process.env.SECRET_KEY,
-            { expiresIn: '1h' }
-        );
-
-        user.password = undefined;
-
-        res.status(200).json({
-            message: 'Login successful',
-            token,
-            user
-        });
-
-    } catch (error) {
-        console.log("Login error:", error);
-        res.status(500).send("Server error during login");
+    if (!(email && password)) {
+      return res.status(400).send("Please enter both email and password");
     }
+
+    const user = await User.findOne({ email });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).send("Invalid email or password");
+    }
+
+    const token = jwt.sign({ id: user._id, email }, process.env.SECRET_KEY, {
+      expiresIn: "1h",
+    });
+
+    user.password = undefined;
+
+    res.status(200).json({
+      message: "Login successful",
+      token,
+      user,
+    });
+  } catch (error) {
+    console.log("Login error:", error);
+    res.status(500).send("Server error during login");
+  }
 });
 
 // ✅ Logout
 app.post("/logout", (req, res) => {
-    res.status(200).json({
-        message: "Logout successful. Please delete token from client (like localStorage)."
-    });
+  res.status(200).json({
+    message: "Logout successful. Please delete token from client (like localStorage).",
+  });
 });
 
-// ✅ Mount the problem routes here
+// ✅ Routes
 app.use("/api/problems", problemRoutes);
+app.use("/api/user", userRoutes);
 
-// ✅ Start the server
-app.listen(process.env.PORT, () => {
-    console.log(`Server is listening on port ${process.env.PORT}!`);
+// ✅ Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });

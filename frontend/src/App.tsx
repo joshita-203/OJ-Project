@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -17,7 +17,11 @@ import { CreateProblemPage } from "@/pages/CreateProblemPage";
 import { UpdateProblemPage } from "@/pages/UpdateProblemPage";
 import { SolveProblemPage } from "@/pages/SolveProblemPage";
 import { ExploreProblemsPage } from "@/pages/ExploreProblemsPage";
+import { ProfilePage } from "@/pages/ProfilePage";
 import NotFound from "@/pages/NotFound";
+
+import { Heartbeat } from "@/components/Heartbeat";
+
 
 const queryClient = new QueryClient();
 
@@ -26,59 +30,78 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/explore" element={<ExploreProblemsPage />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <>
-                    <Navbar />
-                    <Dashboard />
-                  </>
-                }
-              />
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
 
-              {/* Protected Routes */}
-              <Route
-                path="/create"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <CreateProblemPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/update/:id"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <UpdateProblemPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/solve/:id"
-                element={
-                  <ProtectedRoute>
-                    <Navbar />
-                    <SolveProblemPage />
-                  </ProtectedRoute>
-                }
-              />
+            {/* Global heartbeat runs in background on all pages */}
+            <Heartbeat />
 
-              {/* 404 fallback */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <div className="flex-grow">
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+
+                {/* Optional: Protect explore if user-specific */}
+                <Route
+                  path="/explore"
+                  element={
+                    <ProtectedRoute>
+                      <ExploreProblemsPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/create"
+                  element={
+                    <ProtectedRoute>
+                      <CreateProblemPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/update/:id"
+                  element={
+                    <ProtectedRoute>
+                      <UpdateProblemPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/solve/:id"
+                  element={
+                    <ProtectedRoute>
+                      <SolveProblemPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* 404 fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
 
             {/* Global toasters */}
             <Toaster />
-            <Sonner />
+            <SonnerToaster />
           </div>
         </Router>
       </AuthProvider>
