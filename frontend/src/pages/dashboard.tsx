@@ -54,11 +54,16 @@ export const Dashboard = () => {
   };
 
   const deleteProblem = async (id: string) => {
-    await fetch(`${BASE_URL}/api/problems/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setProblems((prev) => prev.filter((p) => p._id !== id));
+    if (!token) return;
+    try {
+      await fetch(`${BASE_URL}/api/problems/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProblems((prev) => prev.filter((p) => p._id !== id));
+    } catch (error) {
+      console.error("Failed to delete problem:", error);
+    }
   };
 
   const getDifficultyColor = (difficulty: string) => {
@@ -101,7 +106,7 @@ export const Dashboard = () => {
           </h1>
         </div>
 
-        {/* Stats without Points */}
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <Card className="bg-gray-100 border border-gray-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
@@ -132,6 +137,7 @@ export const Dashboard = () => {
           </Card>
         </div>
 
+        {/* Show Create Problem only if logged in */}
         {user && (
           <div className="mb-6 flex justify-end">
             <Button
