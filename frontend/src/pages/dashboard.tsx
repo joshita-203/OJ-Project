@@ -38,6 +38,8 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const [problems, setProblems] = useState<Problem[]>([]);
   const [tab, setTab] = useState("all");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     fetchProblems();
@@ -79,10 +81,13 @@ export const Dashboard = () => {
     }
   };
 
-  const filteredProblems =
-    tab === "all"
-      ? problems
-      : problems.filter((p) => p.difficulty.toLowerCase() === tab);
+  const filteredProblems = problems
+    .filter((p) =>
+      p.title.toLowerCase().includes(searchText.toLowerCase())
+    )
+    .filter((p) =>
+      tab === "all" ? true : p.difficulty.toLowerCase() === tab
+    );
 
   const stats = {
     total: problems.length,
@@ -107,7 +112,7 @@ export const Dashboard = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card className="bg-gray-100 border border-gray-300 shadow-md hover:scale-105 transition-transform duration-300">
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
@@ -149,73 +154,104 @@ export const Dashboard = () => {
           </div>
         )}
 
-        <Tabs value={tab} onValueChange={setTab} className="mb-8">
+        <Tabs
+          value={tab}
+          onValueChange={(value) => {
+            setTab(value);
+            if (value === "all") {
+              setSearchInput("");
+              setSearchText("");
+            }
+          }}
+          className="mb-4"
+        >
           <TabsList className="grid grid-cols-4 bg-white border border-gray-300 text-gray-700 shadow-md">
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="easy">Easy</TabsTrigger>
             <TabsTrigger value="medium">Medium</TabsTrigger>
             <TabsTrigger value="hard">Hard</TabsTrigger>
           </TabsList>
-
-          <TabsContent value={tab}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-              {filteredProblems.map((p) => (
-                <Card
-                  key={p._id}
-                  className="bg-white shadow-md border border-gray-300 hover:shadow-lg transition-transform hover:scale-[1.02] duration-300"
-                >
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-gray-900">{p.title}</CardTitle>
-                        <CardDescription className="text-gray-500">
-                          {p.createdBy.firstname} {p.createdBy.lastname}
-                        </CardDescription>
-                      </div>
-                      <Badge className={`${getDifficultyColor(p.difficulty)} text-white`}>
-                        {p.difficulty}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 line-clamp-2">{p.statement}</p>
-
-                    <Button
-                      onClick={() =>
-                        navigate(user ? `/solve/${p._id}` : "/login")
-                      }
-                      className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 text-white hover:scale-105 transition-transform duration-300 active:scale-95 mb-2"
-                    >
-                      <Play className="w-4 h-4 mr-2" />
-                      {user ? "Solve Problem" : "Login to Solve"}
-                    </Button>
-
-                    {user?._id === p.createdBy._id && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-transform duration-200 active:scale-95"
-                          onClick={() => navigate(`/update/${p._id}`)}
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="w-full bg-red-600 hover:bg-red-700 text-white transition-transform duration-200 active:scale-95"
-                          onClick={() => deleteProblem(p._id)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
         </Tabs>
+
+        {/* Search input below tabs */}
+        <div className="mb-8">
+          <input
+            type="text"
+            placeholder="Search by title and press Enter"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setSearchText(searchInput);
+              }
+            }}
+            className="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
+        {/* Problems */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredProblems.length === 0 ? (
+            <div className="col-span-full text-center text-gray-500 text-lg mt-8">
+              No results found for your search.
+            </div>
+          ) : (
+            filteredProblems.map((p) => (
+              <Card
+                key={p._id}
+                className="bg-white shadow-md border border-gray-300 hover:shadow-lg transition-transform hover:scale-[1.02] duration-300"
+              >
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-gray-900">{p.title}</CardTitle>
+                      <CardDescription className="text-gray-500">
+                        {p.createdBy.firstname} {p.createdBy.lastname}
+                      </CardDescription>
+                    </div>
+                    <Badge className={`${getDifficultyColor(p.difficulty)} text-white`}>
+                      {p.difficulty}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4 line-clamp-2">{p.statement}</p>
+
+                  <Button
+                    onClick={() =>
+                      navigate(user ? `/solve/${p._id}` : "/login")
+                    }
+                    className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 text-white hover:scale-105 transition-transform duration-300 active:scale-95 mb-2"
+                  >
+                    <Play className="w-4 h-4 mr-2" />
+                    {user ? "Solve Problem" : "Login to Solve"}
+                  </Button>
+
+                  {user?._id === p.createdBy._id && (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-transform duration-200 active:scale-95"
+                        onClick={() => navigate(`/update/${p._id}`)}
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white transition-transform duration-200 active:scale-95"
+                        onClick={() => deleteProblem(p._id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
 
       <footer className="bg-black text-white text-center py-4 mt-auto">
