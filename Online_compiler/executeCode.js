@@ -12,16 +12,15 @@ const executeCode = async (filepath, input = "") => {
   const ext = path.extname(filepath);
   const jobDir = path.dirname(filepath);
   const jobId = path.basename(filepath).split(".")[0];
-  const TIME_LIMIT = 3000; // 3 seconds
+  const TIME_LIMIT = 3000;
 
   return new Promise((resolve, reject) => {
-    // ✅ C++
     if (ext === ".cpp") {
       const outputFile = path.join(outputPath, `${jobId}.exe`);
       exec(`g++ "${filepath}" -o "${outputFile}"`, (compileErr, stdout, stderr) => {
         if (compileErr || stderr) {
           return reject({
-            error: "❌ Compilation Error",
+            error: "❌ Compilation Error (C++)",
             stderr: stderr || compileErr.message,
           });
         }
@@ -34,11 +33,12 @@ const executeCode = async (filepath, input = "") => {
           reject({ error: "❌ Time Limit Exceeded (3s)", stderr: "" });
         }, TIME_LIMIT);
 
-        run.stdout.on("data", (data) => (output += data.toString()));
-        run.stderr.on("data", (data) => (errorOutput += data.toString()));
+        run.stdout.on("data", (data) => output += data.toString());
+        run.stderr.on("data", (data) => errorOutput += data.toString());
 
         run.on("close", (code) => {
           clearTimeout(timeout);
+          fs.unlink(outputFile, () => {});
           if (code !== 0) {
             return reject({
               error: "❌ Runtime Error",
@@ -48,12 +48,11 @@ const executeCode = async (filepath, input = "") => {
           resolve(output.trim());
         });
 
-        if (input) run.stdin.write(input + "\n");
+        run.stdin.write(input);
         run.stdin.end();
       });
     }
 
-    // ✅ Python
     else if (ext === ".py") {
       const run = spawn("python", [filepath]);
       let output = "", errorOutput = "";
@@ -63,8 +62,8 @@ const executeCode = async (filepath, input = "") => {
         reject({ error: "❌ Time Limit Exceeded (3s)", stderr: "" });
       }, TIME_LIMIT);
 
-      run.stdout.on("data", (data) => (output += data.toString()));
-      run.stderr.on("data", (data) => (errorOutput += data.toString()));
+      run.stdout.on("data", (data) => output += data.toString());
+      run.stderr.on("data", (data) => errorOutput += data.toString());
 
       run.on("close", (code) => {
         clearTimeout(timeout);
@@ -77,17 +76,16 @@ const executeCode = async (filepath, input = "") => {
         resolve(output.trim());
       });
 
-      if (input) run.stdin.write(input + "\n");
+      run.stdin.write(input);
       run.stdin.end();
     }
 
-    // ✅ Java
     else if (ext === ".java") {
       const className = "Main";
       exec(`javac "${filepath}"`, (compileErr, stdout, stderr) => {
         if (compileErr || stderr) {
           return reject({
-            error: "❌ Compilation Error",
+            error: "❌ Compilation Error (Java)",
             stderr: stderr || compileErr.message,
           });
         }
@@ -100,8 +98,8 @@ const executeCode = async (filepath, input = "") => {
           reject({ error: "❌ Time Limit Exceeded (3s)", stderr: "" });
         }, TIME_LIMIT);
 
-        run.stdout.on("data", (data) => (output += data.toString()));
-        run.stderr.on("data", (data) => (errorOutput += data.toString()));
+        run.stdout.on("data", (data) => output += data.toString());
+        run.stderr.on("data", (data) => errorOutput += data.toString());
 
         run.on("close", (code) => {
           clearTimeout(timeout);
@@ -114,12 +112,11 @@ const executeCode = async (filepath, input = "") => {
           resolve(output.trim());
         });
 
-        if (input) run.stdin.write(input + "\n");
+        run.stdin.write(input);
         run.stdin.end();
       });
     }
 
-    // ❌ Unsupported Language
     else {
       reject({ error: "❌ Unsupported Language", stderr: "" });
     }

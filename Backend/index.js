@@ -12,9 +12,10 @@ dotenv.config();
 
 // ✅ CORS Configuration
 const corsOptions = {
-  origin: ["https://oj-project-nine.vercel.app"], // ✅ Your Vercel frontend
+  origin: ["http://localhost:8080", "https://oj-project-nine.vercel.app"], // local + deployed
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 // ✅ Middlewares
