@@ -10,8 +10,14 @@ const jwt = require("jsonwebtoken");
 // ✅ Load environment variables early
 dotenv.config();
 
-// ✅ Middleware
-app.use(cors());
+// ✅ CORS Configuration
+const corsOptions = {
+  origin: ["https://oj-project-nine.vercel.app"], // ✅ Your Vercel frontend
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// ✅ Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

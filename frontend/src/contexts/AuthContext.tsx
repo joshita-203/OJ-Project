@@ -37,12 +37,13 @@ export const useAuth = () => {
   return context;
 };
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // ✅ Load user and token on app load
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
@@ -54,14 +55,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  // ⏱️ Heartbeat - Send ping every minute to record time
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     const sendHeartbeat = async () => {
       try {
         if (token) {
-          await fetch("http://localhost:5000/api/user/heartbeat", {
+          await fetch(`${BACKEND_URL}/api/user/heartbeat`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     if (token) {
-      intervalId = setInterval(sendHeartbeat, 60 * 1000); // 🔁 every minute
+      intervalId = setInterval(sendHeartbeat, 60 * 1000);
     }
 
     return () => {
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [token]);
 
   const login = async (email: string, password: string) => {
-    const response = await fetch("http://localhost:5000/login", {
+    const response = await fetch(`${BACKEND_URL}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: string,
     password: string
   ) => {
-    const response = await fetch("http://localhost:5000/register", {
+    const response = await fetch(`${BACKEND_URL}/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ firstname, lastname, email, password }),
