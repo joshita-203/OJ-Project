@@ -70,7 +70,7 @@ export const SolveProblemPage = () => {
         setOutput(data.output || "✅ No output");
       } else {
         const errorMessage =
-          data.output || data.stderr || "❌ Unknown runtime/compile error";
+          data.output || data.stderr || "❌ Runtime error";
         setOutput(`❌ Error:\n${errorMessage}`);
       }
     } catch {
@@ -161,10 +161,10 @@ export const SolveProblemPage = () => {
 
       const data = await res.json();
       if (data.success) {
-        setReview(data.review);
-      } else {
-        setReview("❌ Failed to get review.");
-      }
+  setReview(data.aiFeedback); // ✅ Fix here!
+} else {
+  setReview("❌ Failed to get review.");
+}
     } catch {
       setReview("❌ AI review request failed.");
     }

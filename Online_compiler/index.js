@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const generateFile = require("./generateFile");
 const executeCode = require("./executeCode");
-const generateAiResponse = require("./generateAiResponse");
+const generateAiResponse = require("./generateAiResponse"); // Make sure this returns a string or proper text
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -11,11 +11,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ✅ Test route
 app.get("/", (req, res) => {
   res.send("⚙️ Online Compiler Running");
 });
 
-// 🔁 Run endpoint
+// 🔁 Run Code API
 app.post("/run", async (req, res) => {
   const { language = "cpp", code, input = "" } = req.body;
 
@@ -37,9 +38,9 @@ app.post("/run", async (req, res) => {
   }
 });
 
-// ✅ Submit route - improved to show compile errors clearly
+// ✅ Submit API
 app.post("/submit", async (req, res) => {
-  const { language = "cpp", code, input, expectedOutput } = req.body;
+  const { language = "cpp", code, input = "", expectedOutput = "" } = req.body;
 
   if (!code || !input || !expectedOutput) {
     return res.status(400).json({ success: false, error: "Code, input, and expected output are required" });
@@ -68,7 +69,7 @@ app.post("/submit", async (req, res) => {
   }
 });
 
-// 🤖 AI Review
+// 🤖 AI Review API
 app.post("/ai-review", async (req, res) => {
   const { code, language = "cpp" } = req.body;
 
@@ -77,13 +78,19 @@ app.post("/ai-review", async (req, res) => {
   }
 
   try {
-    const aiFeedback = await generateAiResponse(code, language);
-    return res.json({ success: true, aiFeedback });
+    const aiFeedback = await generateAiResponse(code); // Should return string
+    if (!aiFeedback) {
+      return res.status(500).json({ success: false, error: "AI feedback generation failed" });
+    }
+
+    return res.json({ success: true, aiFeedback }); // Send response with feedback
   } catch (err) {
-    return res.status(500).json({ success: false, error: err.message });
+    console.error("AI Review Error:", err.message);
+    return res.status(500).json({ success: false, error: "AI Review failed" });
   }
 });
 
+// ✅ Start Server
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`✅ Compiler server running on port ${PORT}`);
 });
