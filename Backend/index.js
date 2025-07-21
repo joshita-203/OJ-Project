@@ -74,7 +74,7 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// ✅ Login
+// ✅ Login with improved error messages
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -85,8 +85,13 @@ app.post("/login", async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).send("Invalid email or password");
+    if (!user) {
+      return res.status(404).send("User not registered");  // User not found message
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).send("Invalid credentials");  // Wrong password message
     }
 
     const token = jwt.sign({ id: user._id, email }, process.env.SECRET_KEY, {

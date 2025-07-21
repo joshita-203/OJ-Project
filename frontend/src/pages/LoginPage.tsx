@@ -26,10 +26,19 @@ export const LoginPage = () => {
         description: "You have successfully logged in.",
       });
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
+      // Handle error message from backend
+      let message = "Please check your credentials";
+      if (error?.response?.data) {
+        // If using axios and error response data contains string message
+        message = error.response.data;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
       toast({
         title: "Login Failed",
-        description: error instanceof Error ? error.message : "Please check your credentials",
+        description: message,
         variant: "destructive",
       });
     } finally {
