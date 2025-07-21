@@ -2,16 +2,36 @@ const express = require("express");
 const cors = require("cors");
 const generateFile = require("./generateFile");
 const executeCode = require("./executeCode");
-const generateAiResponse = require("./generateAiResponse"); // Make sure this returns a string or proper text
+const generateAiResponse = require("./generateAiResponse");
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-app.use(cors());
+// ✅ CORS setup for both local dev and production
+const allowedOrigins = [
+  "http://localhost:8080", // local frontend
+  "https://oj-project-nine.vercel.app" // deployed frontend
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin like mobile apps or curl
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Test route
+// ✅ Health route
 app.get("/", (req, res) => {
   res.send("⚙️ Online Compiler Running");
 });
@@ -43,7 +63,9 @@ app.post("/submit", async (req, res) => {
   const { language = "cpp", code, input = "", expectedOutput = "" } = req.body;
 
   if (!code || !input || !expectedOutput) {
-    return res.status(400).json({ success: false, error: "Code, input, and expected output are required" });
+    return res
+      .status(400)
+      .json({ success: false, error: "Code, input, and expected output are required" });
   }
 
   try {
@@ -74,16 +96,18 @@ app.post("/ai-review", async (req, res) => {
   const { code, language = "cpp" } = req.body;
 
   if (!code) {
-    return res.status(400).json({ success: false, error: "Code is required for AI review" });
+    return res
+      .status(400)
+      .json({ success: false, error: "Code is required for AI review" });
   }
 
   try {
-    const aiFeedback = await generateAiResponse(code); // Should return string
+    const aiFeedback = await generateAiResponse(code);
     if (!aiFeedback) {
       return res.status(500).json({ success: false, error: "AI feedback generation failed" });
     }
 
-    return res.json({ success: true, aiFeedback }); // Send response with feedback
+    return res.json({ success: true, aiFeedback });
   } catch (err) {
     console.error("AI Review Error:", err.message);
     return res.status(500).json({ success: false, error: "AI Review failed" });
