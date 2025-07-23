@@ -28,7 +28,7 @@ export const SignupPage = () => {
         title: "Registration Successful",
         description: "You can now log in with your credentials.",
       });
-      navigate("/login");
+      navigate("/dashboard");
     } catch (error) {
       toast({
         title: "Signup Failed",
